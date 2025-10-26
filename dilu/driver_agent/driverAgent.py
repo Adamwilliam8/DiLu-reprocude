@@ -7,6 +7,7 @@ from typing import List
 from langchain.chat_models import AzureChatOpenAI, ChatOpenAI
 from langchain.schema import AIMessage, HumanMessage, SystemMessage
 from langchain.callbacks import get_openai_callback, OpenAICallbackHandler, StreamingStdOutCallbackHandler
+from langchain_deepseek import ChatDeepSeek
 
 from dilu.scenario.envScenario import EnvScenario
 
@@ -75,6 +76,16 @@ class DriverAgent:
                 request_timeout=60,
                 streaming=True,
             )
+        elif oai_api_type == "deepseek":
+            print("Use Deepseek API")
+            self.llm = ChatDeepSeek(model=os.getenv("DEEPSEEK_MODEL"),
+                                    temperature=os.getenv("DEEPSEEK_TEMPERATURE"),
+                                    max_tokens=os.getenv("DEEPSEEK_MAX_TOKENS"),
+                                    callbacks=[
+                                        OpenAICallbackHandler()
+                                    ],
+                                    request_timeout=30,
+                                    streaming=True)
 
     ### 利用LLM结合记忆库中的历史决策示例，对当前自动驾驶场景进行推理，输出动作编号
     def few_shot_decision(self, scenario_description: str = "Not available", previous_decisions: str = "Not available", available_actions: str = "Not available", driving_intensions: str = "Not available", fewshot_messages: List[str] = None, fewshot_answers: List[str] = None):
